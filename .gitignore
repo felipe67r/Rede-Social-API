@@ -1,33 +1,85 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Maven
+/target/
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/pom.xml.next
+/release.properties
+/dependency-reduced-pom.xml
+/buildNumber.properties
+/.mvn/timing.properties
+# Logs
+*.log
+logs/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDEs
+.idea/
+.vscode/
 *.iml
 *.ipr
+*.iws
+.project
+.classpath
+.settings/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# OS generated files
+.DS_Store
+.Trash
+Thumbs.db
 
-### VS Code ###
-.vscode/
+# Spring Boot
+*.bak
+*.swp
+*.class
+*.log
+
+# Windows thumbnail caches
+Thumbs.db
+
+# Folders for generated files
+.idea/
+.gradle/
+.project
+.settings/
+.classpath
+.metadata/
+*.iml
+*.ipr
+*.iws
+*.factorypath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+target/
+pom.xml.next
+
+# Logs
+*.log
+
+# Spring Boot
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.rar
+!**/src/main/**/resources/**/application*.yml
+!**/src/main/**/resources/**/application*.yaml
+!**/src/main/**/resources/**/application*.properties
+!**/src/main/**/resources/**/bootstrap*.yml
+!**/src/main/**/resources/**/bootstrap*.yaml
+!**/src/main/**/resources/**/bootstrap*.properties
