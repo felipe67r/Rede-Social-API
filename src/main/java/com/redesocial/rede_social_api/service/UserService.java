@@ -7,7 +7,6 @@ import com.redesocial.rede_social_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ public class UserService {
 
         User user = new User();
         user.setUsername(registerDTO.getUsername());
-        user.setPassword(registerDTO.getPassword()); // Senha em texto puro temporariamente
+        user.setPassword(registerDTO.getPassword());
         user.setEmail(registerDTO.getEmail());
         user.setFirstName(registerDTO.getFirstName());
         user.setLastName(registerDTO.getLastName());
