@@ -8,14 +8,18 @@ import com.redesocial.rede_social_api.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime; // Certifique-se de que este import está presente
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.time.LocalDateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class PostService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
     private final PostRepository postRepository;
     private final UserService userService;
@@ -24,81 +28,102 @@ public class PostService {
     public PostService(PostRepository postRepository, UserService userService) {
         this.postRepository = postRepository;
         this.userService = userService;
+        logger.info("PostService inicializado.");
     }
 
     @Transactional
     public PostResponseDTO createPost(PostCreateDTO postCreateDTO, Long userId) {
+        logger.info("Usuário {} tentando criar um novo post.", userId);
         User user = userService.findUserEntityById(userId);
 
         Post post = new Post();
         post.setContent(postCreateDTO.getContent());
         post.setUser(user);
-        // Não é necessário setar createdAt explicitamente aqui, @CreationTimestamp na entidade Post já faz isso
 
         Post savedPost = postRepository.save(post);
+        logger.info("Post criado com sucesso pelo usuário {} (ID do Post: {}).", userId, savedPost.getId());
         return mapPostToPostResponseDTO(savedPost);
     }
 
     public List<PostResponseDTO> getAllPosts() {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream()
+        logger.info("Buscando todos os posts ordenados por data de criação.");
+        List<PostResponseDTO> posts = postRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::mapPostToPostResponseDTO)
                 .collect(Collectors.toList());
+        logger.info("{} posts encontrados no total.", posts.size());
+        return posts;
     }
 
-    // Este método retorna o DTO para o controlador
     public PostResponseDTO getPostById(Long postId) {
+        logger.info("Buscando post com ID: {}", postId);
         return postRepository.findById(postId)
                 .map(this::mapPostToPostResponseDTO)
-                .orElseThrow(() -> new IllegalArgumentException("Post não encontrado com ID: " + postId));
+                .orElseThrow(() -> {
+                    logger.warn("Post não encontrado com ID: {}", postId);
+                    return new IllegalArgumentException("Post não encontrado com ID: " + postId);
+                });
     }
 
-    // NOVO MÉTODO: Retorna a entidade Post para ser usada por outros serviços
     public Post findPostEntityById(Long postId) {
+        logger.debug("Buscando entidade de post com ID: {}", postId);
         return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post não encontrado com ID: " + postId));
+                .orElseThrow(() -> {
+                    logger.warn("Entidade de post não encontrada com ID: {}", postId);
+                    return new IllegalArgumentException("Post não encontrado com ID: " + postId);
+                });
     }
 
     @Transactional
     public PostResponseDTO updatePost(Long postId, PostCreateDTO updatedPostDTO, Long userId) {
-        // Usamos findPostEntityById para obter a entidade Post
+        logger.info("Usuário {} tentando atualizar o post com ID: {}", userId, postId);
         Post existingPost = findPostEntityById(postId);
 
         if (!existingPost.getUser().getId().equals(userId)) {
+            logger.warn("Falha ao atualizar post {}: Usuário {} não tem permissão.", postId, userId);
             throw new SecurityException("Você não tem permissão para editar este post.");
         }
 
         if (updatedPostDTO.getContent() == null || updatedPostDTO.getContent().trim().isEmpty()) {
+            logger.warn("Falha ao atualizar post {}: Conteúdo do post vazio.", postId);
             throw new IllegalArgumentException("O conteúdo do post não pode ser vazio.");
         }
         if (updatedPostDTO.getContent().length() > 280) {
+            logger.warn("Falha ao atualizar post {}: Conteúdo muito longo ({} caracteres).", postId, updatedPostDTO.getContent().length());
             throw new IllegalArgumentException("O post deve ter no máximo 280 caracteres.");
         }
 
         existingPost.setContent(updatedPostDTO.getContent());
         Post updatedPost = postRepository.save(existingPost);
+        logger.info("Post {} atualizado com sucesso pelo usuário {}.", postId, userId);
         return mapPostToPostResponseDTO(updatedPost);
     }
 
     @Transactional
     public void deletePost(Long postId, Long userId) {
-        // Usamos findPostEntityById para obter a entidade Post
+        logger.info("Usuário {} tentando deletar o post com ID: {}", userId, postId);
         Post existingPost = findPostEntityById(postId);
 
         if (!existingPost.getUser().getId().equals(userId)) {
+            logger.warn("Falha ao deletar post {}: Usuário {} não tem permissão.", postId, userId);
             throw new SecurityException("Você não tem permissão para deletar este post.");
         }
 
         postRepository.delete(existingPost);
+        logger.info("Post {} deletado com sucesso pelo usuário {}.", postId, userId);
     }
 
     public List<PostResponseDTO> getPostsByUserId(Long userId) {
-        userService.findUserEntityById(userId); // Garante que o usuário exista
-        return postRepository.findByUser_Id(userId).stream()
+        logger.info("Buscando posts para o usuário com ID: {}", userId);
+        userService.findUserEntityById(userId);
+        List<PostResponseDTO> posts = postRepository.findByUser_Id(userId).stream()
                 .map(this::mapPostToPostResponseDTO)
                 .collect(Collectors.toList());
+        logger.info("Encontrados {} posts para o usuário {}.", posts.size(), userId);
+        return posts;
     }
 
     private PostResponseDTO mapPostToPostResponseDTO(Post post) {
+        logger.debug("Mapeando Post para PostResponseDTO para post ID: {}", post.getId());
         PostResponseDTO dto = new PostResponseDTO();
         dto.setId(post.getId());
         dto.setContent(post.getContent());

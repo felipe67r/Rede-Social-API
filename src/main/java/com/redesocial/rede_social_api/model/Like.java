@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import jakarta.validation.constraints.NotNull; // Importar do jakarta.validation.constraints
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "likes")
