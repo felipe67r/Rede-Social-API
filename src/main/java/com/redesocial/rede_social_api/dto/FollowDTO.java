@@ -6,7 +6,10 @@ import lombok.Data;
 @Data
 public class FollowDTO {
 
-    @NotNull(message = "ID do usuário a ser seguido é obrigatório")
+    @NotNull(message = "O ID do seguidor não pode ser nulo.")
+    private Long followerId;
+
+    @NotNull(message = "O ID do usuário a ser seguido não pode ser nulo.")
     private Long followedId;
 
 }

@@ -1,11 +1,13 @@
 package com.redesocial.rede_social_api.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import jakarta.validation.constraints.NotNull;
 @Data
 public class LikeDTO {
 
-    @NotNull(message = "ID do post a ser curtido é obrigatório")
-    private Long postId;
+    @NotNull(message = "O ID do usuário não pode ser nulo.")
+    private Long userId;
 
+    @NotNull(message = "O ID do post não pode ser nulo.")
+    private Long postId;
 }
