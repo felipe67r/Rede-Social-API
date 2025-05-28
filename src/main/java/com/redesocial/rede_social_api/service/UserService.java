@@ -71,6 +71,38 @@ public class UserService {
         return mapUserToUserResponseDTO(userOptional.get());
     }
 
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UserResponseDTO userUpdateDTO) {
+        logger.info("Tentativa de atualização do usuário com ID: {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Usuário não encontrado com ID: {}", id);
+                    return new IllegalArgumentException("Usuário não encontrado com ID: " + id);
+                });
+
+        if (userRepository.existsByEmail(userUpdateDTO.getEmail()) && !user.getEmail().equals(userUpdateDTO.getEmail())) {
+            logger.warn("Falha na atualização: Email já cadastrado para outro usuário: {}", userUpdateDTO.getEmail());
+            throw new IllegalArgumentException("Email já cadastrado.");
+        }
+
+        user.setEmail(userUpdateDTO.getEmail());
+
+        User updatedUser = userRepository.save(user);
+        logger.info("Usuário com ID {} atualizado com sucesso.", id);
+        return mapUserToUserResponseDTO(updatedUser);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        logger.info("Tentativa de exclusão do usuário com ID: {}", id);
+        if (!userRepository.existsById(id)) {
+            logger.warn("Falha na exclusão: Usuário não encontrado com ID: {}", id);
+            throw new IllegalArgumentException("Usuário não encontrado com ID: " + id);
+        }
+        userRepository.deleteById(id);
+        logger.info("Usuário com ID {} excluído com sucesso.", id);
+    }
+
     public User findUserEntityById(Long id) {
         logger.debug("Buscando entidade de usuário com ID: {}", id);
         return userRepository.findById(id)
