@@ -127,7 +127,18 @@ public class PostService {
         PostResponseDTO dto = new PostResponseDTO();
         dto.setId(post.getId());
         dto.setContent(post.getContent());
-        dto.setUsername(post.getUser().getUsername());
+
+        if (post.getUser() != null) {
+            logger.debug("User object exists for post ID {}. User ID from Post: {}, Username from Post: {}",
+                    post.getId(), post.getUser().getId(), post.getUser().getUsername());
+            dto.setUsername(post.getUser().getUsername());
+            dto.setUserId(post.getUser().getId());
+        } else {
+            logger.warn("O objeto User no Post é nulo para o post ID: {}. userId e username serão nulos na resposta.", post.getId());
+            dto.setUserId(null);
+            dto.setUsername(null);
+        }
+
         dto.setCreatedAt(post.getCreatedAt());
         return dto;
     }
